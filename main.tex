@@ -1,0 +1,515 @@
+\documentclass[11pt, fontset = windows]{article}
+\usepackage{ctex}
+% \usepackage{subfiles}
+\usepackage{cite}
+\usepackage{packages/userpack}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{fontspec}
+% \usepackage{xcolor}
+% \usepackage{multicol}
+\usepackage{authblk}
+\usepackage[namelimits]{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathrsfs}
+% \usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage[]{booktabs}
+\usepackage{longtable}
+
+\lstset{
+    language = python,
+    basicstyle = \scriptsize\fontspec{Consolas},
+    breakatwhitespace = false,
+    breaklines = true,
+    captionpos = b,
+    commentstyle = \textit{italic}\fontspec{Consolas},
+    extendedchars = false,
+    framerule = 0pt,
+    % numbersep = 10pt,
+    showspaces = false,
+    showstringspaces = false,
+    showtabs = false,
+    stepnumber = 1,
+    numbers = left,
+    % xleftmargin = 25pt,
+    numberstyle = \scriptsize\fontspec{Consolas},
+    tabsize = 4,
+    extendedchars = false
+}
+
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2.5cm}
+
+\title{\textbf{基于熵权法—TOPSIS法的供应商多指标评价模型}}
+\author{\textsl{黄凯博$^1$, 夏锦熠$^2$, 李旭桓$^3$}}
+\affil{
+    \footnotesize{班级：2021211805}\\
+    \footnotesize{学号：$^1$2021212532, $^2$2021212057, $^3$2021212066}
+}
+\date{}
+
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+
+\begin{document}
+
+\maketitle
+
+\begin{cnabstract}
+
+    优质的供应商对于企业成本控制和稳定生产有着不可或缺的地位.
+    本文针对现有企业的402家供应商建立了反映其重要性的多指标评价模型, 来筛选出最重要的50家供应商.
+    根据过往企业订货和供应商供货信息, 本文从单位产能成本, 供货能力和供货稳定性三个角度出发,
+    划分出单位产能成本, 供货量与订货量数量比的中位数, 供货不足次数比, 供货不足数量比的中位数, 最大供货能力, 持续供货特征等6个评价指标,
+    通过熵权法确定指标权重, 结合TOPSIS法, 建立多指标评价模型, 对供应商重要性进行评价, 最终筛选出S140, S139, S395等50家最重要的供应商.
+    该模型可促进实际生产的供应链优化, 降低企业生产成本, 提高生产稳定性, 提高企业经济效益.
+
+    \textbf{关键词：}多指标评价模型, 筛选供应商, 熵权法, TOPSIS法
+
+\end{cnabstract}
+
+\section[]{问题重述}
+
+现代社会, 大部分产品需要各企业分工协作才能完成. 当面对众多的供应商时, 处于生产端的企业往往需要通过优化供应链管理, 筛选出高质量的供应伙伴, 来提高准时交货率, 降低库存, 提高企业经济效益.
+已知某建筑和装饰板材的生产企业所用原材料可分为A, B, C三种类型. 这三种原材料可由402家供应商供应, 并且每一家供应商只供应一种原材料.
+企业会根据产能向供应商预订原材料. 但由于受到原材料特殊性的影响, 实际供货量与企业订货量可能不相等. 因此为保障原材料供应, 企业对于供应商实际提供的原材料总是全部收购.
+一年以48周计算, 企业每周产能为2.82万立方米, 每立方米产品需消耗不同数量的A、B、C类原材料. 三种原材料的单位价格不同, 运输和储存的单位成本相同. A, B, C的消耗和相对价格见表\ref{原材料相关信息表}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ccc}
+        \toprule
+        原材料类型 & 单位产能原材料消耗量 (m$^3$) & 相对价格 \\ \midrule
+        A     & 0.6                & 1.2  \\
+        B     & 0.66               & 1.1  \\
+        C     & 0.72               & 1    \\ \bottomrule
+    \end{tabular}
+    \caption{原材料相关信息表}
+    \label{原材料相关信息表}
+\end{table}
+
+根据生产计划, 该企业需要进行未来24周的原材料订购安排, 并且在平时生产中, 还需要存储不少于2周使用量的原材料. 为确保生产和降本增效, 我们需要根据已知的5年企业订货和供应商供货信息, 对402家供应商建立合适的数学模型, 筛选出最优质的50家供应商.
+
+\section[]{问题分析}
+
+该问旨在根据402家的供货特征进行量化分析, 建立数学模型, 对供应商供货能力进行综合评价.
+依据题目所给的附件1, 我们从生产成本, 供应稳定性, 供应强度等方面出发, 提炼出单位产能成本, 供货满足能力, 供货不足次数比, 供应持续能力, 最大供应能力等指标.
+利用熵权法—TOPSIS法建立评价模型, 先根据依据熵权法确定多元指标权重, 再利用TOPSIS法, 基于预处理的数据, 多元评价地给供应商打分, 再按得分筛选出前50家供应商.
+
+\section[]{符号说明}
+
+符号说明详见表\ref{符号说明表}.
+
+\begin{center}
+    \begin{longtable}{clc}
+        \toprule
+        符号                   & 符号说明                                                     & 单位    \\ \midrule
+        \endhead
+        \caption{符号说明表}\\
+        \label{符号说明表}\\
+        \endlastfoot
+        $\lambda_{j}$        & 供应商 $j$ 提供单位产能时所需的 C 类原材料体积大小                            & m$^3$ \\
+        $\mu_{j} $           & 供应商 $j$ 的单位体积原材料与单位体积 C 类原材料的价格比                         & /     \\
+        $c_j$                & 单位产能成本                                                   & /     \\
+        $d_{i,j}$            & 第 $i$ 周供应商 $j$ 的订货量                                      & m$^3$ \\
+        $g_{i,j}$            & 第 $i$ 周供应商 $j$ 的供货量                                      & m$^3$ \\
+        $q_{i,j}$            & $g_{i,j}$ 与 $d_{i,j}$ 的比                                 & /     \\
+        $q_j$                & $q_{i,j}$  的中位数                                          & /     \\
+        $D_j$                & 供应商$j$的供货次数                                              & /     \\
+        $n_j$                & 供应商$j$供货不足的次数                                            & /     \\
+        $N_j$                & 供应商$j$供货不足的次数比                                           & /     \\
+        $\overline{q}_{i,j}$ & 供货不足数量比                                                  & /     \\
+        $\overline{q}_{j}$   & $\overline{q}_{i,j}$的中位数                                 & /     \\
+        $m_{j} $             & 供应商$j$的最大供货能力                                            & m$^3$ \\
+        $\Delta w$           & 连续订货区间长度.                                                & /     \\
+        $c_{m,j,\Delta w}$   & 在第 $m$ 个长度为 $\Delta w$ 的连续订货区间内满足 $q_{i,j} \geq 1$ 的供货次数 & /     \\
+        $f_{m,j,\Delta w}$   & 连续订货区间上的订单完成率                                            & /     \\
+        $C_{j,\Delta w}$     & 供应商的持续供货特征                                               & /     \\
+        $x_{i,j}$            & 第 $i$ 周供货商 $j$ 是否有订单                                     & /     \\
+        $y_{i,j}$            & 供货商是否有订单且无法满足订单上的订货需求                                    & /     \\
+        $k_j$                & 供应商 $j$ 的连续订货区间数                                         & /     \\ \bottomrule
+    \end{longtable}
+\end{center}
+
+\section[]{模型假设}
+
+\begin{enumerate}
+
+    \item 不考虑仓库存储的约束. 在真实情况中, 企业仓库的大小往往对于企业的生产决策有着极大的影响, 可能约束企业的大规模生产. 但由于在此题目中, 企业仓库的容量大小等条件并未给出. 由此我们先假设仓库容量足以满足企业以最大产能生产消耗的原材料库存, 供应商的供货量与仓储条件无关, 仓储费用足够低以致于可以忽略不计.
+
+    \item 不考虑原材料供应商的供货延迟. 在现实情况中, 供货商的供货速度往往会极大地影响企业对供应商的选择. 但由于题目中并未给出原材料供应商供货速度的相关数据, 我们对此种情况不予以考虑.
+
+    \item 不考虑原材料的质量问题. 在现实情况中, 不同生产商所提供的材料的质量时参差不齐的, 生产商的制造水平往往影响着企业对于供货商的选择. 但由于题目中并未给出各个供应商的生产的质量, 我们不对此种情况予以考虑.
+
+    \item 不考虑企业产能的波动. 产能直接影响着原材料的订购量. 根据题目信息, 假设过去五年内, 生产企业的产能每周相对稳定.
+
+    \item 供货商的信誉、交货准确度、交货能力等属性是确定的. 假设供货商的各种内在属性是固定不变的, 以忽略过去五年中偶然因素对其数据产生的影响, 以保证提炼出来的数字特征的准确性.
+
+    \item 过去五年的订货数据都是生产企业基于对供货商供货能力的充分考虑. 也就是说, 生产企业往往是选择供货能力更强的供货商来为其提供原材料, 确保数据的准确性.
+
+\end{enumerate}
+
+\section[]{模型的建立与求解}
+
+\subsection[]{模型的建立}
+
+\subsubsection[]{指标的计算}
+
+\begin{enumerate}
+
+    \item 单位产能成本
+
+          单位产能成本的计算, 基于题目中给的数据, 得到 $\lambda_j$ 即供应商 $j$ 供应的 A 类 、B 类、C 类原材料在提供单位产能时所需的体积；得到$\mu_j$ 即供应商 $j$ 供应的单位体积原材料与单位体积 C 类原材料的价格比.  (此处根据所给数据, 将单位体积 C 类原材料的价格定为单位1. )
+          在此基础上, 算出各类原材料的单位产能成本
+          \begin{equation}
+              c_j=\lambda_j\cdot\mu_j.
+          \end{equation}
+          其中
+          \begin{equation}
+              \lambda_{j}=
+              \begin{cases}
+                  0.6,  & \mbox{供应商$j$提供A类原材料} \\
+                  0.66, & \mbox{供应商$j$提供B类原材料} \\
+                  0.72, & \mbox{供应商$j$提供C类原材料}
+              \end{cases}
+              ,\quad
+              \mu_{j}=
+              \begin{cases}
+                  1.2, & \mbox{供应商$j$提供A类原材料} \\
+                  1.1, & \mbox{供应商$j$提供B类原材料} \\
+                  1,   & \mbox{供应商$j$提供C类原材料}
+              \end{cases}.
+          \end{equation}
+
+          计算得到的结果为
+          \begin{equation}
+              c_{j}=
+              \begin{cases}
+                  0.72,  & \mbox{供应商$j$提供A类原材料} \\
+                  0.726, & \mbox{供应商$j$提供B类原材料} \\
+                  0.72,  & \mbox{供应商$j$提供C类原材料}
+              \end{cases}.
+          \end{equation}
+
+    \item 供货量与订货量数量比的中位数
+
+          首先, 依据附件1表格中所给出的数据, 获取 $d_{i,j}$ 的值, 即第 $i$ 周供应商 $j$ 的订货量.
+          接着, 继续依据附件1表格中所给出的数据, 获取 $g_{i,j}$ 的值, 即第 $i$ 周供应商 $j$ 提供的供货量.
+          然后, 根据已获得的 $d_{i,j}$ 与 $g_{i,j}$ 值, 计算其比值
+          \begin{equation}
+              q_{i,j}=\frac{ g_{i,j}}{ d_{i,j}},\quad i=1,2,\cdots,240,\quad j=1,2,\cdots,402.
+          \end{equation}
+          最后, 根据求出的 $q_{i,j}$ 的值, 找出每家供应商的中位数, 将其记为$q_j$.
+
+    \item 供货不足数量比的中位数
+
+          根据在“供货量与订货量数量比的中位数”中得到的 $q_{i,j}$ 的值, 计算供货不足数量比
+          \begin{equation}
+              \overline{q}_{i,j}=1-q_{i,j},\quad i=1,2,\cdots,240,\quad j=1,2,\cdots,402.
+          \end{equation}
+          取 $\overline{q}_{i,j}$ 的中位数, 记为 $\overline{q}_{j}$.
+
+    \item 供货不足次数比
+
+          首先, 求出供应商$j$接到订货的周数
+          \begin{equation}
+              \label{接到订货的周数}
+              D_j=\sum_{i=1}^{240}x_{i,j},\quad j=1,2,\cdots,402.
+          \end{equation}
+          其中参数 $x_{i,j}$ 表示第 $i$ 周供货商 $j$ 是否有订单, 即
+          \begin{equation}
+              x_{i,j}=
+              \begin{cases}
+                  1, & d_{i,j} > 0 \\
+                  0, & d_{i,j} = 0
+              \end{cases}.
+          \end{equation}
+
+          接着, 求出供应商$j$满足订货需求的周数
+          \begin{equation}
+              \label{满足订货需求的周数}
+              n_j=\sum_{i=1}^{240}y_{i,j},\quad j=1,2,\cdots,402.
+          \end{equation}
+          其中参数 $y_{i,j}$ 表示供货商是否有订单且无法满足订单上的订货需求, 即
+          \begin{equation}
+              y_{i,j}=
+              \begin{cases}
+                  1, & d_{i,j} > 0\,\mbox{且}\,q_{i,j} < 1 \\
+                  0, & \mbox{其他}
+              \end{cases}.
+          \end{equation}
+
+          最后, 求出供货不足的次数比
+          \begin{equation}
+              N_j=\frac{n_j}{D_j},\quad j=1,2,\cdots,402.
+          \end{equation}
+          其中$n_j$和$D_j$已分别由公式(\ref{满足订货需求的周数})与公式(\ref{接到订货的周数})求得.
+
+
+    \item 最大供货能力
+
+          根据附件1表格中的数据, 寻找供应商$j$的最大供货量, 将其值记为$m_j$, 以此数据来表示供应商$j$的供货能力.
+          为反映真实供货能力的同时, 也确保原材料充足供应, 对于未能完成所有供货量的供应商, 采取“最坏情况下的最好原则”.
+          具体操作是, 当供应商$j$出现没有满足订货需求 (即 $q_{i,j}<1$) 的情况时, 需要考虑最坏情况, 将其未能满足订单需求但供货量达到最大的值作为$m_j$.
+          对于完成了所有供货量要求的供应商, 即当供应商$j$出现$q_{i,j}<1$恒成立的情况时, 认为该供应商供应充足, 把历史供货量最大值当做供应商$j$的最大供货能力 $m_j$.
+
+    \item 持续供货特征
+
+          首先, 选定确定连续订货区间的长度, 记为$\Delta w$.
+          接着, 依据选定好的$\Delta w$, 在附件1表格的数据中, 寻找供应商$j$的连续订货区间数, 记为 $k_j$.
+          然后, 寻找供应商$j$的连续订货区间$m$ ($1\leq m\leq k_j$) 中满足 $q_{i,j} \geq 1$的订单次数 (即供货量满足了订单需求的次数) , 将其记为 $c_{m,j,\Delta w}$, 并算出连续订货区间上的订单完成率
+          \begin{equation}
+              f_{m,j,\Delta w}=\frac{c_{m,j,\Delta w}}{\Delta w},\quad m=1,2,\cdots,k_j,\quad j=1,2,\cdots,402.
+          \end{equation}
+          最后, 求取$f_{m,j,\Delta w}$的均值
+          \begin{equation}
+              C_{j,\Delta w}=\frac{1}{k}\sum_{m=1}^k f_{m,j,\Delta w},\quad j=1,2,\cdots,402.
+          \end{equation}
+          用此项指标反映供应商的持续供货能力.
+
+\end{enumerate}
+
+\subsubsection[]{模型的构建方式}
+
+从单位产能成本、供货能力和供货稳定性三个角度出发, 划分出单位产能成本、供货量与订货量数量比的中位数、供货不足次数比、供货不足数量比的中位数、最大供货能力、持续供货特征等6个指标.
+根据上述指标的计算过程, 我们可以对附件1表格中的数据进行计算、处理, 并完成模型的构建.
+我们认为这6个指标重要程度相同, 所以对于等重要性的多维指标, 可以用熵权法 (Entropy Weight Method, EWM) 得到各个指标的权重.
+然后, 依照各个参数的指标值进行正向化、归一化处理后, 引入熵权法得出的权重, 建立基于TOPSIS的多指标分析模型, 根据相对接近度分数并排序, 反映出供应商的重要程度及其排名, 从而帮助解决问题. \cite{张文博2022}
+
+\begin{enumerate}
+
+    \item 熵权法
+
+          熵权法的基本思路是, 根据各项指标的指标值的变异程度来确定指标权重 (这也是其优点所在, 是一种客观的赋权法, 避免了人为因素带来的偏差) .
+          具体来说, 如果某个指标的信息熵越小, 说明指标值的变异程度越大, 能够提供的信息量越多, 那么它在综合评价中所能起到的作用也就越大, 其权重也就越大.
+          相反, 如果某个指标的信息熵越大, 说明指标值的变异程度越小, 能够提供的信息量也越少, 那么它在综合评价中所起到的作用也就越小, 其权重也就越小.
+
+    \item TOPSIS法
+
+          TOPSIS法是一种常用的组内综合评价方式, 能够充分利用原始数据的信息, 其结果能够精确地反映各个方案间的差距.
+          其主要过程是基于归一化后的原始数据矩阵, 采用一定的计算方式, 寻找出有限方案中的最优方案和最劣方案, 接着分别计算各个待评价方案与最优方案和最劣方案间的差距, 获得各个待评价方案与最优方案的相对接近距离, 以及与最劣方案的相对远离距离, 以此作为评价优劣的依据.
+
+\end{enumerate}
+
+\subsection[]{模型的求解}
+
+\subsubsection[]{算法求解}
+
+\begin{enumerate}
+
+    \item 熵权法求解过程
+
+          \begin{enumerate}
+
+              \item 假设有$m$个供应商, $n$项供货评价指标, 使用python, 将附表1中表格的数据依据参数计算公式读取到程序中, 形成原始指标数据矩阵
+                    \begin{equation}
+                        X_r = \begin{pmatrix}
+                            r_{11} & \dots  & r_{1n} \\
+                            \vdots & \ddots & \vdots \\
+                            r_{m1} & \dots  & r_{mn}
+                        \end{pmatrix}_{m\times n}.
+                    \end{equation}
+                    其中$r_{ij}$表示第$i$个供应商对应的第$j$项供货评价指标所求得的数值.
+
+              \item 先对指标进行归一化处理, 消除量纲对不同评价结果的影响. 我们把6个指标分成两类, 分别为正向指标和负向指标.
+                    当所用指标的值越大越好时, 我们称其为正向指标, 例如供货量与订货量数量比的中位数, 最大供货能力, 持续供货特征这3个指标.
+                    接下来, 我们对正向指标按照公式(\ref{正向指标归一化})进行归一化处理.
+                    \begin{equation}
+                        \label{正向指标归一化}
+                        x_{ij}=\frac{r_{ij}-r_{\mathrm{min},j}}{r_{\mathrm{max},j}-r_{\mathrm{min},j}}.
+                    \end{equation}
+                    当所用指标的值越小越好时, 我们称其为负向指标, 例如单位产能成本, 供货不足次数比, 供货不足数量比的中位数这3个指标.
+                    接下来, 我们对负向指标按照公式(\ref{负向指标归一化})进行归一化处理.
+                    \begin{equation}
+                        \label{负向指标归一化}
+                        x_{ij}=\frac{r_{\mathrm{max},j}-r_{ij}}{r_{\mathrm{max},j}-r_{\mathrm{min},j}}.
+                    \end{equation}
+                    其中$r_{\mathrm{max},j}$和$r_{\mathrm{min},j}$分别代表在数值矩阵$X_r$在第$j$列的数值最大值和最小值. 进行归一化处理后, 我们得到新的数值矩阵$X$.
+                    % \footnote{实际计算时, 为了避免出现$x_{mn}^{'}=0$从而导致对数无法计算的情况, 我们选择用$0.998x_{mn}^{'}+0.002$作为最终的结果. }
+
+              \item 计算第$i$个供应商对应第$j$项供货评价指标占第$j$项供货评价指标比重的指标
+                    \begin{equation}
+                        p_{ij}=\frac{x_{ij}}{\sum_{k=1}^{m}x_{kj}}.
+                    \end{equation}
+                    并得到比重矩阵
+                    \begin{equation}
+                        P = \begin{pmatrix}
+                            p_{11} & \dots  & p_{1n} \\
+                            \vdots & \ddots & \vdots \\
+                            p_{m1} & \dots  & p_{mn}
+                        \end{pmatrix}_{m\times n}.
+                    \end{equation}
+
+              \item 计算第$j$个指标对应的信息熵
+                    \begin{equation}
+                        E_j=-\frac{1}{\ln m}\sum_{i=1}^{m}\left( P_{ij}\ln P_{ij}\right).
+                        \footnote{当$P_{ij}=0$时, 取$\lim\limits_{P_{ij}\rightarrow 0}P_{ij}\ln P_{ij}=0$作为$P_{ij}\ln P_{ij}$的值. }
+                    \end{equation}
+
+              \item 计算第$j$个指标对应的信息冗余度
+                    \begin{equation}
+                        G_{j}=1-E_{j}.
+                    \end{equation}
+
+              \item 计算第$j$个指标在所有指标中所占的权重
+                    \begin{equation}
+                        W_j=\frac{G_j}{\sum_{i=1}^{n}G_i},
+                    \end{equation}
+                    体现出指标值的变异程度和能够提供的信息量.
+
+          \end{enumerate}
+
+    \item 引入熵权法的TOPSIS法求解过程
+
+          \begin{enumerate}
+
+              \item 在原先正向化矩阵$X$的基础上, 根据求得的权重$W_n$, 构造加权矩阵
+                    \begin{equation}
+                        Z = \begin{pmatrix}
+                            z_{11} & \dots  & z_{1n} \\
+                            \vdots & \ddots & \vdots \\
+                            z_{m1} & \dots  & z_{mn}
+                        \end{pmatrix}_{m\times n}.
+                    \end{equation}
+                    其中
+                    \begin{equation}
+                        z_{ij}=\frac{x_{ij}}{\sqrt{ \sum_{k=1}^{m}x_{kj}^{2} }}\cdot W_j.
+                    \end{equation}
+
+              \item 根据公式(\ref{最优值向量})与公式(\ref{最劣值向量})找出各项指标对应的最优值向量$\boldsymbol{z}^+$和最劣值向量$\boldsymbol{z}^-$.
+                    \begin{equation}
+                        \label{最优值向量}
+                        \boldsymbol{z}^+=\left(z_1^+,z_2^+,\cdots,z_n^+ \right),
+                    \end{equation}
+                    \begin{equation}
+                        \label{最劣值向量}
+                        \boldsymbol{z}^-=\left(z_1^-,z_2^-,\cdots,z_n^-\right),
+                    \end{equation}
+                    其中$z_j^+ = \max\left\{ z_{1j}, z_{2j}, \cdots, z_{mj} \right\}$, $z_j^- = \min\left\{ z_{1j}, z_{2j}, \cdots, z_{mj} \right\}.$
+                    % $j = 1, 2, \cdots, 6,\,m = 402.$
+
+              \item 根据公式(\ref{最优值距离})与公式(\ref{最劣值距离})计算各个评价对象与最优值和最劣值之间的距离, 最优值距离记作$D_i^+$, 最劣值距离记作$D_i^-$.
+                    \begin{equation}
+                        \label{最优值距离}
+                        D_i^+=\sqrt{\sum_{j=1}^{n}\left( z_{ij}-z_j^+ \right)^2}.
+                    \end{equation}
+                    \begin{equation}
+                        \label{最劣值距离}
+                        D_i^-=\sqrt{\sum_{j=1}^{n}\left( z_{ij}-z_j^- \right)^2}.
+                    \end{equation}
+
+              \item 计算各个评价指标与最优值的相对接近度
+                    \begin{equation}
+                        C_i=\frac{D_i^-}{D_i^++D_i^-}.
+                    \end{equation}
+                    这个值越大, 表明该序号的供应商综合供货能力更强, 更为优质. 最后, 根据$C_i$排序选出得分最高的50家供货商, 即为最重要的50家供货商.
+
+          \end{enumerate}
+
+\end{enumerate}
+
+\subsubsection[]{求解结果}
+
+模型求解结果详见表\ref{权重列表}与表\ref{供应商列表}. (结果四舍五入到4位小数.)
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ccccccc}
+        \toprule
+        指标名 & $c_j (-)$ & $q_j (+)$ & $N_j (-)$ & $\overline{q}_j (-)$ & $m_j (+)$ & $C_{j,2} (+)$ \\ \midrule
+        权重  & 0.1022    & 0.1515    & 0.0395    & 0.1557               & 0.4791    & 0.0720        \\ \bottomrule
+    \end{tabular}
+    \caption{熵权法求得权重表}
+    \label{权重列表}
+\end{table}
+
+\begin{center}
+    \begin{longtable}{cccc||cccc}
+        \toprule
+        序号 & 供应商ID & 材料分类 & 评估得分   & 序号 & 供应商ID & 材料分类 & 评估得分   \\ \midrule
+        \endfirsthead
+        续表 \ref{供应商列表}\\
+        \toprule
+        序号 & 供应商ID & 材料分类 & 评估得分   & 序号 & 供应商ID & 材料分类 & 评估得分   \\ \midrule
+        \endhead
+        \caption{评估得到的最重要的50家供应商}\\
+        \label{供应商列表}\\
+        \endlastfoot
+        \bottomrule\\
+        \endfoot
+        1  & S140  & B    & 0.9812 & 26 & S306  & C    & 0.0640 \\
+        2  & S139  & B    & 0.4198 & 27 & S143  & A    & 0.0631 \\
+        3  & S395  & A    & 0.2677 & 28 & S364  & B    & 0.0554 \\
+        4  & S229  & A    & 0.2058 & 29 & S268  & C    & 0.0554 \\
+        5  & S361  & C    & 0.1507 & 30 & S076  & C    & 0.0538 \\
+        6  & S284  & C    & 0.1350 & 31 & S352  & A    & 0.0532 \\
+        7  & S338  & B    & 0.1349 & 32 & S194  & C    & 0.0528 \\
+        8  & S282  & A    & 0.1178 & 33 & S114  & A    & 0.0524 \\
+        9  & S330  & B    & 0.1155 & 34 & S208  & A    & 0.0518 \\
+        10 & S037  & C    & 0.1035 & 35 & S291  & A    & 0.0502 \\
+        11 & S086  & C    & 0.0912 & 36 & S178  & A    & 0.0498 \\
+        12 & S055  & B    & 0.0870 & 37 & S149  & C    & 0.0490 \\
+        13 & S126  & C    & 0.0864 & 38 & S030  & A    & 0.0489 \\
+        14 & S308  & B    & 0.0779 & 39 & S221  & A    & 0.0487 \\
+        15 & S074  & C    & 0.0776 & 40 & S003  & C    & 0.0482 \\
+        16 & S356  & C    & 0.0755 & 41 & S237  & A    & 0.0482 \\
+        17 & S340  & B    & 0.0735 & 42 & S307  & A    & 0.0480 \\
+        18 & S210  & C    & 0.0731 & 43 & S064  & A    & 0.0478 \\
+        19 & S201  & A    & 0.0729 & 44 & S075  & A    & 0.0478 \\
+        20 & S275  & A    & 0.0726 & 45 & S066  & A    & 0.0477 \\
+        21 & S348  & A    & 0.0702 & 46 & S342  & C    & 0.0475 \\
+        22 & S329  & A    & 0.0695 & 47 & S157  & A    & 0.0475 \\
+        23 & S131  & B    & 0.0663 & 48 & S239  & C    & 0.0474 \\
+        24 & S151  & C    & 0.0661 & 49 & S050  & B    & 0.0474 \\
+        25 & S108  & B    & 0.0643 & 50 & S206  & C    & 0.0474 \\ \bottomrule
+    \end{longtable}
+\end{center}
+
+\section[]{模型评价与改进}
+
+\subsection[]{优点}
+
+\begin{enumerate}
+
+    \item 问题一的模型先利用熵权法, 供应商评价指标的选取从单位成本, 供应能力, 供应稳定性多层次出发, 使得评价更全面可靠. 根据各指标的变异程度来确定指标权重, 避免人为因素带来的偏差, 更客观.
+
+    \item 利用TOPSIS法对供应商进行综合评价. 充分使用预处理数据信息, 可以定量评判供应商重要程度, 结果客观准确.
+
+\end{enumerate}
+
+\subsection[]{缺点}
+
+\begin{enumerate}
+
+    \item 对于指标划分本身的重要程度没有得到很好的区分, 可能会影响最终的评价标准.
+
+    \item 仅依靠TOPSIS一种评价方法进行评价, 单凭距离判断使得评价结果单元化.
+
+\end{enumerate}
+
+\subsection[]{改进}
+
+\begin{enumerate}
+
+    \item 问题一中对供货商指标可以考虑再结合层次分析法, 进一步区分指标重要程度.
+
+    \item 综合评价采用的是TOPSIS法. 可以考虑采用例如投影寻踪法等评价方法来构建多种打分机制.
+
+\end{enumerate}
+
+\bibliographystyle{gb2005}
+
+\bibliography{citations.bib}
+
+\newpage
+
+\section*{附录}
+
+\subsection*{相关代码 (python) }
+
+\lstinputlisting[]{code/calc.py}
+
+\end{document}

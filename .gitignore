@@ -1,0 +1,11 @@
+# Generated Files
+*.xdv
+*.pdf
+*.synctex.gz
+*.out
+*.log
+*.fls
+*.fdb_latexmk
+*.bbl
+*.aux
+*.blg
